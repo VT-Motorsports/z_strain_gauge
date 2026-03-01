@@ -1,0 +1,9 @@
+# Copyright (c) 2025 VCU Team
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_VCU_STM32
+
+config BOARD
+	default "vcu_stm32"
+
+endif # BOARD_VCU_STM32

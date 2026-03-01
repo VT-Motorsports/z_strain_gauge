@@ -1,0 +1,6 @@
+board:
+  name: vcu_stm32_test
+  full_name: VCU_STM32H753VIT6
+  vendor: st
+  socs:
+    - name: stm32h753xx

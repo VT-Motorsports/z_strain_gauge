@@ -1,0 +1,5 @@
+board:
+  name: vcu_stm32
+  vendor: st
+  socs:
+    - name: stm32h753xx
