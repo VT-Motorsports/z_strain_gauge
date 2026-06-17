@@ -1,46 +1,47 @@
 /*
- * TempSense STM32H753VIT6 Thermal Sensor Board
+ * STM32H753VIT6 Strain Gauge Board
+ * 9 ADC channels + FDCAN1
+ * SG10 (PB2) is physically wired but not ADC-capable on H753VIT6.
  */
 
 /dts-v1/;
 
 #include <st/h7/stm32h753Xi.dtsi>
-#include <st/h7/stm32h753zitx-pinctrl.dtsi>
-#include <zephyr/dt-bindings/i2c/i2c.h>
+#include <st/h7/stm32h753vitx-pinctrl.dtsi>
+#include <zephyr/dt-bindings/adc/adc.h>
 
- / {
-	model = "TempSense STM32H753VIT6 Thermal Sensor Board";
+/ {
+	model = "STM32H753VIT6 Strain Gauge Board";
 	compatible = "st,stm32h753vi";
 
 	chosen {
-		zephyr,console = &usart3;
-		zephyr,shell-uart = &usart3;
-
-		zephyr,sram  = &sram0;
+		zephyr,sram = &sram0;
 		zephyr,flash = &flash0;
-		zephyr,dtcm  = &dtcm;
-
+		zephyr,dtcm = &dtcm;
 		zephyr,canbus = &fdcan1;
 	};
 
 	aliases {
-		i2c0 = &i2c1;
-		can0 = &fdcan1;
+		sg1 = &sg1_ch;
+		sg2 = &sg2_ch;
+		sg3 = &sg3_ch;
+		sg4 = &sg4_ch;
+		sg5 = &sg5_ch;
+		sg6 = &sg6_ch;
+		sg7 = &sg7_ch;
+		sg8 = &sg8_ch;
+		sg9 = &sg9_ch;
 	};
 };
 
-/*
- * Clocks
- * - Your board has a 24 MHz crystal on PH0/PH1, so use HSE=24MHz (no bypass).
- * - Keep the same derived frequencies as Nucleo: SYSCLK 480 MHz, FDCAN kernel 80 MHz.
- */
+/* ---------- Clock tree ---------- */
+
 &clk_hse {
 	clock-frequency = <DT_FREQ_M(24)>;
 	status = "okay";
 };
 
 &pll {
-	/* 24MHz / 6 = 4MHz input, 4MHz * 240 = 960MHz VCO, /2 = 480MHz */
 	div-m = <6>;
 	mul-n = <240>;
 	div-p = <2>;
@@ -51,11 +52,10 @@
 };
 
 &pll2 {
-	/* 24MHz / 12 = 2MHz input, 2MHz * 120 = 240MHz VCO, /3 = 80MHz for FDCAN */
 	div-m = <12>;
 	mul-n = <120>;
 	div-p = <2>;
-	div-q = <3>; /* 80MHz */
+	div-q = <3>;
 	div-r = <2>;
 	clocks = <&clk_hse>;
 	status = "okay";
@@ -64,6 +64,7 @@
 &rcc {
 	clocks = <&pll>;
 	clock-frequency = <DT_FREQ_M(480)>;
+
 	d1cpre = <1>;
 	hpre = <2>;
 	d1ppre = <2>;
@@ -72,56 +73,105 @@
 	d3ppre = <2>;
 };
 
-/* Enable GPIO ports you use */
+/* ---------- GPIO ---------- */
+
 &gpioa { status = "okay"; };
 &gpiob { status = "okay"; };
-&gpioc { status = "okay"; };
 &gpiod { status = "okay"; };
-&gpioe { status = "okay"; };
 
-/*
- * USART3 console (PD8/PD9)
- */
-&usart3 {
-	pinctrl-0 = <&usart3_tx_pd8 &usart3_rx_pd9>;
-	pinctrl-names = "default";
-	current-speed = <115200>;
+/* ---------- ADC ---------- */
+
+&adc1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	#io-channel-cells = <1>;
+
+	st,adc-clock-source = "SYNC";
+	st,adc-prescaler = <4>;
+
 	status = "okay";
+
+	/* PA1 = ADC1_INP17 */
+	sg1_ch: channel@11 {
+		reg = <17>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_VDD_1";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+	};
+
+	/* PA2 = ADC12_INP14 */
+	sg2_ch: channel@e {
+		reg = <14>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_VDD_1";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+	};
+
+	/* PA3 = ADC12_INP15 */
+	sg3_ch: channel@f {
+		reg = <15>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_VDD_1";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+	};
+
+	/* PA4 = ADC12_INP18 */
+	sg4_ch: channel@12 {
+		reg = <18>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_VDD_1";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+	};
+
+	/* PA5 = ADC12_INP19 */
+	sg5_ch: channel@13 {
+		reg = <19>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_VDD_1";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+	};
+
+	/* PA6 = ADC12_INP3 */
+	sg6_ch: channel@3 {
+		reg = <3>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_VDD_1";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+	};
+
+	/* PA7 = ADC12_INP7 */
+	sg7_ch: channel@7 {
+		reg = <7>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_VDD_1";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+	};
+
+	/* PB0 = ADC12_INP9 */
+	sg8_ch: channel@9 {
+		reg = <9>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_VDD_1";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+	};
+
+	/* PB1 = ADC12_INP5 */
+	sg9_ch: channel@5 {
+		reg = <5>;
+		zephyr,gain = "ADC_GAIN_1";
+		zephyr,reference = "ADC_REF_VDD_1";
+		zephyr,acquisition-time = <ADC_ACQ_TIME_DEFAULT>;
+	};
 };
 
-/*
- * CAN: transceiver RXD/TXD are on PA11/PA12 per schematic.
- * NOTE: PA11/PA12 are also commonly used for USB FS (DM/DP), so don’t enable USB FS on this pinout.
- */
+/* ---------- FDCAN ---------- */
+
 &fdcan1 {
 	clocks = <&rcc STM32_CLOCK_BUS_APB1_2 0x00000100>,
 		 <&rcc STM32_SRC_PLL2_Q FDCAN_SEL(2)>;
 
-	pinctrl-0 = <&fdcan1_rx_pa11 &fdcan1_tx_pa12>;
+	pinctrl-0 = <&fdcan1_rx_pd0 &fdcan1_tx_pd1>;
 	pinctrl-names = "default";
-
-	/* Optional but usually nice to have in DT */
-	bus-speed = <500000>;
 
 	status = "okay";
 };
-
-/*
- * I2C1: PB8/PB9 to MLX90640
- */
-&i2c1 {
-	pinctrl-0 = <&i2c1_scl_pb8 &i2c1_sda_pb9>;
-	pinctrl-names = "default";
-	clock-frequency = <I2C_BITRATE_FAST>;
-	status = "okay";
-
-	/*
-	 * MLX90640 default 7-bit I2C address is 0x33 in most setups. :contentReference[oaicite:1]{index=1}
-	 * Compatible string depends on the binding/driver you’re using; many Zephyr examples use "mlx90640". :contentReference[oaicite:2]{index=2}
-	 */
-	mlx90640: mlx90640@33 {
-		compatible = "mlx90640";
-		reg = <0x33>;
-		label = "MLX90640";
-	};
-}; 

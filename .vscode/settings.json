@@ -19,7 +19,7 @@
 
     // Clangd configuration
     "clangd.arguments": [
-        "--compile-commands-dir=build",
+        "--compile-commands-dir=${workspaceFolder}/build",
         "--background-index",
         "--clang-tidy",
         "--completion-style=detailed",

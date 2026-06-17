@@ -18,8 +18,7 @@
 #include <zephyr/toolchain.h>
 #include <zephyr/types.h>
 #include "can.h"
-#include "thermal_camera.h"
-#include "thermal_pipline.h"
+
 
 #ifndef __cplusplus
 #error "__cplusplus not defined! Build system is compiling as C!"
@@ -52,6 +51,11 @@ void send_heartbeat(CanBus can)
     heartbeat_counter++;
 }
 
+
+
+
+
+
 int main(void)
 
 {
@@ -63,12 +67,6 @@ int main(void)
     CanBus can;
     can.init(can_dev);
 
-    ThermalCamera MLX{};
-    MLX.init();
-
-    ThermalPipline pipe{MLX, can};
-    pipe.start();
-    pipe.printData = true;
 
     k_sleep(K_FOREVER);
 }
