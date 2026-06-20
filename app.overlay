@@ -1,0 +1,10 @@
+/ {
+    zephyr,user {
+        io-channels = <&adc1 17>, <&adc1 14>, <&adc1 15>,
+                      <&adc1 18>, <&adc1 19>, <&adc1 3>,
+                      <&adc1 7>,  <&adc1 9>,  <&adc1 5>;
+        io-channel-names = "sg1", "sg2", "sg3",
+                           "sg4", "sg5", "sg6",
+                           "sg7", "sg8", "sg9";
+    };
+};
