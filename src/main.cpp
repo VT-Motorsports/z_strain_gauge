@@ -1,3 +1,4 @@
+#include <math.h>
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/can.h>
 #include <syscalls/can.h>
@@ -51,7 +52,19 @@ void send_heartbeat(CanBus can)
     heartbeat_counter++;
 }
 
+constexpr uint32_t strainGuageID = 0x600; //TODO: get right ID
 
+
+
+can_frame genChCanFrame(uint8_t chNum,float_t payload){
+
+    struct can_frame retFrame = {.id = strainGuageID,
+                                 .dlc = 6,
+                                 .flags = 0,
+                                 .data =  }; //TODO: parse channel # and payload data into can frame 1 byte - ch #, 4 bytes data
+
+
+}
 
 
 
@@ -66,6 +79,8 @@ int main(void)
 
     CanBus can;
     can.init(can_dev);
+
+
 
 
     k_sleep(K_FOREVER);
