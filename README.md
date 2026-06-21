@@ -23,8 +23,8 @@ Repo is for the firmware for the strain gauge board
 
 # TODO
 - [x] DTS file
-- [ ] Sampling function
-- [ ] averaging function 
-- [ ] Can message function
+- [x] Sampling function
+- [x] averaging function 
+- [x] Can message function
 
 

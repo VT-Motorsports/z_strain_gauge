@@ -134,7 +134,7 @@ can_frame genChCanFrame(uint8_t packetNum){
     return retFrame;
 }
 
-
+constexpr int msgSendRate = 200; // Hz
 
 
 int main(void){
@@ -142,6 +142,9 @@ int main(void){
     LOG_INF("Main Innit");
 
     const struct device *can_dev = DEVICE_DT_GET(DT_NODELABEL(fdcan1));
+
+    CanBus can;
+    can.init(can_dev);
 
     
     static const struct adc_dt_spec strainChannels[NUM_CH] = {
@@ -170,18 +173,21 @@ int main(void){
         .buffer_size = sizeof(buf),
     };
 
-    for (int i = 0; i < NUM_CH; i++) {
-        adc_sequence_init_dt(&strainChannels[i], &seq);
-        int ret = adc_read_dt(&strainChannels[i], &seq);
+    for (int chNum = 0; chNum < NUM_CH; chNum++) {
+        
+        adc_sequence_init_dt(&strainChannels[chNum], &seq);
+        int ret = adc_read_dt(&strainChannels[chNum], &seq);
         if (ret == 0) {
-            canPayload[i] = (uint16_t)buf;
+            addSample( chNum, (uint16_t)buf);
         }
+        canPayload[chNum] = getAvgSample(chNum);
+
     }
 
-
-    CanBus can;
-    can.init(can_dev);
-
+    for (auto pakNum = 1; pakNum <=3; pakNum++){
+        can_frame frame = genChCanFrame(pakNum);
+        can.send(&frame,  K_SECONDS(1/msgSendRate));
+    }
 
 
 
