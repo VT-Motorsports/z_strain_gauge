@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <sys/errno.h>
+#include <sys/types.h>
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/can.h>
 #include <syscalls/can.h>
@@ -159,34 +160,42 @@ int main(void){
         ADC_DT_SPEC_GET_BY_NAME(DT_PATH(zephyr_user), sg9),
     };
 
-    for (adc_dt_spec ch : strainChannels){
-        int ret =adc_channel_setup_dt(&ch);
 
-        if (ret == EINVAL){
-            LOG_ERR("ADC channel %i failed to setup",ch.channel_id);
+
+    while(true){
+        for (adc_dt_spec ch : strainChannels){
+            int ret =adc_channel_setup_dt(&ch);
+
+            if (ret == EINVAL){
+                LOG_ERR("ADC channel %i failed to setup",ch.channel_id);
+            }
         }
-    }
 
-    int16_t buf;
-    struct adc_sequence seq = {
-        .buffer = &buf,
-        .buffer_size = sizeof(buf),
-    };
+        int16_t buf;
+        struct adc_sequence seq = {
+            .buffer = &buf,
+            .buffer_size = sizeof(buf),
+        };
 
-    for (int chNum = 0; chNum < NUM_CH; chNum++) {
-        
-        adc_sequence_init_dt(&strainChannels[chNum], &seq);
-        int ret = adc_read_dt(&strainChannels[chNum], &seq);
-        if (ret == 0) {
-            addSample( chNum, (uint16_t)buf);
+        for (int chNum = 0; chNum < NUM_CH; chNum++) {
+            
+            adc_sequence_init_dt(&strainChannels[chNum], &seq);
+            int ret = adc_read_dt(&strainChannels[chNum], &seq);
+            if (ret == 0) {
+                addSample( chNum, (uint16_t)buf);
+            }
+            canPayload[chNum] = getAvgSample(chNum);
+
         }
-        canPayload[chNum] = getAvgSample(chNum);
 
-    }
-
-    for (auto pakNum = 1; pakNum <=3; pakNum++){
-        can_frame frame = genChCanFrame(pakNum);
-        can.send(&frame,  K_SECONDS(1/msgSendRate));
+        for (auto pakNum = 1; pakNum <=3; pakNum++){
+            can_frame frame = genChCanFrame(pakNum);
+            int ret = can.send(&frame,K_MSEC(10));
+            if (ret !=0){
+                LOG_WRN("CAN TX failed: %d", ret);
+            }
+        }
+        K_MSEC((int32_t)(1/msgSendRate *1000));
     }
 
 

@@ -10,7 +10,7 @@ Repo is for the firmware for the strain gauge board
   * Could be offloaded later by copying functionality since SG MCU is very capable.
 * implement ADC DMA streaming and increase the sampling/avg rate to increase effective accuracy.
 * Get actual reference voltage from ADC pin to increase ADC accuracy.
- 
+* return voltage instead of ADC range
 
 ### Scope Architecture  
 - [ ] Sampling Thread
@@ -26,5 +26,6 @@ Repo is for the firmware for the strain gauge board
 - [x] Sampling function
 - [x] averaging function 
 - [x] Can message function
+- [ ] DBC file
 
 
